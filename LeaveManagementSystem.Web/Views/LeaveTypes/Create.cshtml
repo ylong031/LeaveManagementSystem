@@ -1,4 +1,4 @@
-﻿@model LeaveManagementSystem.Web.Data.LeaveType
+﻿@model LeaveTypeCreateVM
 
 @{
     ViewData["Title"] = "Create Leave Type";
@@ -38,3 +38,6 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+@* This section is used to include validation scripts for client-side validation *@
+@* it won't allow empty fields, and it will show error messages  *@
+@* _ValidationScriptsPartial.cshtml is a partial view that contains the necessary scripts for validation *@

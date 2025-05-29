@@ -16,6 +16,12 @@ using Humanizer;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Reflection.Metadata;
 using System.Security.Policy;
+using LeaveManagementSystem.Web.Models.LeaveTypes;
+using AutoMapper;
+using System.Numerics;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using System.Xml.Linq;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -25,39 +31,56 @@ namespace LeaveManagementSystem.Web.Controllers
         Instead, those needed objects (called dependencies) are passed in from the outside*/
         
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private const string NameExistsValidationMessage="This leave type already exists in the database";
 
-        public LeaveTypesController(ApplicationDbContext context)
+        public LeaveTypesController(ApplicationDbContext context,IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-         /*async means:
-        "This method might take time to finish, so let it run in the background."
-        It helps your app not freeze or get stuck while waiting for something(like getting data from a database).
-        await means:
-        "Wait for this task to finish, but don’t block everything else.
-        It tells your program:
-        "Go do other things while we wait for this to finish."
-        IActionResult – What is that?
-        It means:
-        "This method returns something that the browser will see."
-        Example: a view, a redirect, a JSON response, or a status code like 404.
-        Task means:
-        "This method does something in the background, and we’ll get the result later."
-        */
+        /*async means:
+       "This method might take time to finish, so let it run in the background."
+       It helps your app not freeze or get stuck while waiting for something(like getting data from a database).
+       await means:
+       "Wait for this task to finish, but don’t block everything else.
+       It tells your program:
+       "Go do other things while we wait for this to finish."
+       IActionResult – What is that?
+       It means:
+       "This method returns something that the browser will see."
+       Example: a view, a redirect, a JSON response, or a status code like 404.
+       Task means:
+       "This method does something in the background, and we’ll get the result later."
+       */
+        /*  linq
+           var data = SELECT * FROM LeaveTypes
 
+          it will do the conversion of the data coming 
+          from a database into C sharp objects,
+          which I can now store in my C sharp variable.
+        
+         Next we will convert datamodel into viewmodel
+         */
         // GET: LeaveTypes
         public async Task<IActionResult> Index() 
         {
-            /*  linq
-            var data = SELECT * FROM LeaveTypes
             
-           it will do the conversion of the data coming 
-           from a database into C sharp objects,
-           which I can now store in my C sharp variable.*/
-
             var data = await _context.LeaveTypes.ToListAsync();
-            return View(data);
+            /* var viewData = data.Select(q => new IndexVM
+             {
+                 Id = q.Id,
+                 Name = q.Name,
+                 NumberOfDays = q.NumberOfDays
+             });
+            Manual mapping
+             */
+
+
+            //Convert this list of data models into a list of view models.
+            var viewData=_mapper.Map<List<LeaveTypeReadOnlyVM>>(data);
+            return View(viewData);
         }
 
 
@@ -83,15 +106,18 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound(); //id not provided
             }
-            //SELECT * FROM LeaveTypes WHERE Id = id
-            var leaveType = await _context.LeaveTypes 
+            
+            var leaveType = await _context.LeaveTypes //SELECT * FROM LeaveTypes WHERE Id = id
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (leaveType == null)
             {
                 return NotFound(); //leavetype doesnt exist
             }
 
-            return View(leaveType);
+            var viewData = _mapper.Map<LeaveTypeReadOnlyVM>(leaveType);
+            //Convert one data model into a view model.
+
+            return View(viewData);
         }
 
         // GET: LeaveTypes/Create
@@ -104,19 +130,52 @@ namespace LeaveManagementSystem.Web.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 
+        /*So the problem with using the data model here is that the data model has the ID, the name, and the
+        number of days, which means that somebody could actually in real time, like when they load up the
+        form, they could modify the form in the browser using inspect element and insert a new input for a
+        field like ID that I should not be accepting.
+        And because I have this code, I would inadvertently actually accept that data.
+        So that's what over posting really means.
+
+        savechangesAsync would not allow when you try to insert a value into an identity column(primary key)
+        */
+
         // This method is called when the user submits the form to create a new leave type.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,NumberOfDays")] LeaveType leaveType)
+        public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
         {
-            if (ModelState.IsValid)
+
+            /* if (leaveTypeCreate.Name.Contains("dumb")) 
+             {
+                 ModelState.AddModelError(nameof(leaveTypeCreate.Name), "the word dumb is not allowed."); 
+                 //custom error message
+             } */
+            /*This is a custom validation rule that checks 
+             * if the name contains the word "vacation".
+             If it does, it adds an error to the model state,
+            which will be displayed in the view.*/
+
+            if (await CheckIfLeaveTypeNameExists(leaveTypeCreate.Name)) 
             {
+                ModelState.AddModelError(nameof(leaveTypeCreate.Name),
+                    NameExistsValidationMessage);
+                //custom error message
+
+            }
+
+
+            if (ModelState.IsValid) //it will also check if the field is empty or not
+            {
+                var leaveType=_mapper.Map<LeaveType>(leaveTypeCreate); //Convert view model into data model
                 _context.Add(leaveType); /*Add leave application to database*/
                 await _context.SaveChangesAsync(); /*Save changes to the database*/
                 return RedirectToAction(nameof(Index));  /*return to index*/
             }
-            return View(leaveType); /*if the model state is not valid, return to the view*/
+            return View(leaveTypeCreate); /*if the model state is not valid, return to the view*/
         }
+
+      
 
         // GET: LeaveTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -125,13 +184,16 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound(); //empty id
             }
-            //SELECT * FROM LeaveTypes WHERE Id = id
-            var leaveType = await _context.LeaveTypes.FindAsync(id); 
+            
+            var leaveType = await _context.LeaveTypes.FindAsync(id); //SELECT * FROM LeaveTypes WHERE Id = id
             if (leaveType == null)
             {
                 return NotFound(); //leave doesnt exist
             }
-            return View(leaveType);
+
+            var viewData = _mapper.Map<LeaveTypeEditVM>(leaveType);
+
+            return View(viewData);
         }
 
         // POST: LeaveTypes/Edit/5
@@ -139,24 +201,34 @@ namespace LeaveManagementSystem.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,NumberOfDays")] LeaveType leaveType) //id is the hidden field in the form
+        public async Task<IActionResult> Edit(int id, LeaveTypeEditVM leaveTypeEdit) //id is the hidden field in the form
         {
             //check if the id is the same as the id in the leaveType object
-            if (id != leaveType.Id)  
+            if (id != leaveTypeEdit.Id)  
             {
                 return NotFound(); //make sure you are editing the correct leave type
             }
+
+            if (await CheckIfLeaveTypeNameExistsForEdit(leaveTypeEdit))
+            {
+                ModelState.AddModelError(nameof(leaveTypeEdit.Name),
+                    NameExistsValidationMessage);
+                //custom error message
+
+            }
+
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var leaveType = _mapper.Map<LeaveType>(leaveTypeEdit);
                     _context.Update(leaveType);//update the leave type
                     await _context.SaveChangesAsync();// save changes to the database
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LeaveTypeExists(leaveType.Id))
+                    if (!LeaveTypeExists(leaveTypeEdit.Id))
                     {
                         return NotFound();
                     }
@@ -167,8 +239,11 @@ namespace LeaveManagementSystem.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(leaveType); //if the model state is not valid, return to the view and show the errors with the invalid data
+
+            return View(leaveTypeEdit); //if the model state is not valid, return to the view and show the errors with the invalid data
         }
+
+       
 
 
         /*Now it's wrapped in a try catch because of the risk of what we call a database update concurrency exception.
@@ -196,8 +271,9 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound();
             }
+            var viewData=_mapper.Map<LeaveTypeReadOnlyVM>(leaveType);
 
-            return View(leaveType);
+            return View(viewData);
         }
 
         // POST: LeaveTypes/Delete/5
@@ -208,6 +284,7 @@ namespace LeaveManagementSystem.Web.Controllers
             var leaveType = await _context.LeaveTypes.FindAsync(id);
             if (leaveType != null)
             {
+                
                 _context.LeaveTypes.Remove(leaveType);
             }
 
@@ -218,6 +295,24 @@ namespace LeaveManagementSystem.Web.Controllers
         private bool LeaveTypeExists(int id)
         {
             return _context.LeaveTypes.Any(e => e.Id == id);
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExists(string name)
+        {
+            var lowercaseName = name.ToLower();// Convert the name to lowercase for case-insensitive comparison
+            return await _context.LeaveTypes.AnyAsync
+                (q => q.Name.ToLower().Equals(lowercaseName));
+
+            /*This will check if the name already exists in the database.*/
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExistsForEdit(LeaveTypeEditVM leaveTypeEdit)
+        {
+            var lowercaseName = leaveTypeEdit.Name.ToLower();
+            return await _context.LeaveTypes.AnyAsync
+                (q => q.Name.ToLower().Equals(lowercaseName) 
+                && q.Id != leaveTypeEdit.Id);
+            //error message will be shown if name already exists in other ids
         }
     }
 }

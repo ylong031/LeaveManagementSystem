@@ -1,7 +1,13 @@
-﻿@model IEnumerable<LeaveManagementSystem.Web.Data.LeaveType>
+﻿@model IEnumerable<LeaveTypeReadOnlyVM>
 
 @* IEnumerable is a base class for collection.
 this is collection is of LeaveType *@
+
+@* At its core, Model Binding in ASP.NET MVC is just about:
+
+📬 Taking the input data from a form (or URL), 
+and putting it into a C# object (the model) 
+so your code can work with it easily. *@
 
 @{
     ViewData["Title"] = "Index";
