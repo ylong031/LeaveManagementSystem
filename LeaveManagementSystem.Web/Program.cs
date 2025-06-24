@@ -24,7 +24,7 @@ I can just inject it the same way I injected the mapper and the context and so o
 /*IoC
  * Instead of you creating and managing dependencies manually,
  * you delegate that responsibility to a framework or container 
- * — in this case, the IoC container.
+ * ï¿½ in this case, the IoC container.
 */
 
 
@@ -36,7 +36,9 @@ it will find the profile reads the mapping configuration
 and make it availablea app-wide
  */
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//SignIn.RequireConfirmedAccount = true
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() // This adds the IdentityRole service
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 

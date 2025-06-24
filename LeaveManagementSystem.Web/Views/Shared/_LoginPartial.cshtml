@@ -1,9 +1,21 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@*
+SignInManager.IsSignedIn(User)
+This user object here actually represents that claims principle.
+The claims principle is created after login 
+and it stores all of the information about the claim about the user. 
+So now the user is logged in.
+All of that information is stored here.
+And one of the claims that the user has is their name.
+when you logout it kills the claim principle
+*@
+@* This partial view is used to show the login and register links in the navigation bar *@
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
+@if (SignInManager.IsSignedIn(User)) @* if the person is login *@
 {
     <li class="nav-item">
         <a  class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
@@ -14,13 +26,15 @@
         </form>
     </li>
 }
-else
+    else     @* if the person is not login *@
 {
     <li class="nav-item">
-        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">Register</a> 
+            @* Area>Identity>Account>Register.cshtml *@
     </li>
     <li class="nav-item">
         <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Login">Login</a>
+             @* Area>Identity>Account>Login.cshtml  *@
     </li>
 }
 </ul>
