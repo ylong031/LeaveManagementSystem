@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.CodeAnalysis.RulesetToEditorconfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
@@ -62,6 +64,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }=new InputModel();
 
+
+        public string[] RoleNames { get; set; }
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -123,11 +127,18 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             [Display(Name = "Date Of Birth")]
             public DateOnly DateOfBirth { get; set; }
 
+            [Required]
             public string RoleName { get; set; }
-            public string[] RoleNames { get; set; }
+            
         }
 
-
+/* var roles =: Declares a new variable named roles.
+await roleManager.Roles: Asynchronously accesses the list of roles from the database.
+.Select(q => q.Name): From each role object, take only the role's name (e.g., "Employee", "Supervisor").
+q => q.Name is a lambda expression: for each q in the collection, select q.Name.
+.Where(q => q != "Administrator"): Filters out the role named "Administrator". Only roles with a name not equal to "Administrator" are kept.
+.ToArrayAsync(): Converts the filtered list of names into an array, asynchronously.
+*/
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
@@ -137,7 +148,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                 .Where(q => q != "Administrator")
                 .ToArrayAsync();
 
-            Input.RoleNames = roles;
+            RoleNames = roles;
         
         }
 
@@ -215,6 +226,21 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
+// IMPORTANT:
+// When registration fails (e.g., invalid email or weak password),
+// we redisplay the form using return Page().
+// However, non-form-bound properties like RoleNames (used for dropdowns or radio buttons)
+// are not preserved across postbacks because they are not part of the form model.(not bound with asp-for)
+// To prevent a NullReferenceException in the Razor page,
+// we must reload the roles before returning the page
+
+            var roles = await _roleManager.Roles
+                .Select(q => q.Name)
+                .Where(q => q != "Administrator")
+                .ToArrayAsync();
+
+            RoleNames = roles;
 
             // If we got this far, something failed, redisplay form
             return Page();

@@ -6,6 +6,16 @@
 
 <h1>@ViewData["Title"]</h1>
 
+
+@* •	
+    It binds the form element 
+    (e.g.,<input>, <label>,<textarea>) to a specific property in your model.
+	
+    For example, 
+    asp-for="Input.Password" binds the <input> field to the Password property of the Input model. *@
+
+
+
 <div class="row">
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -47,7 +57,7 @@
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
 
-            @foreach(var role in Model.Input.RoleNames)
+            @foreach(var role in Model.RoleNames)
             {
                 <div class="form-check">
                     <input class="form-check-input" type="radio" asp-for="Input.RoleName" value="@role">
@@ -58,6 +68,14 @@
             
             
             }
+
+          @* Purpose of value='@role' is to bind the selected radio button value to the Input.RoleName property in your model.
+
+            When the user selects a radio button and submits the form,
+            the value of the selected radio button (e.g., "Admin") is sent to the server.
+            
+            This value is bound to the Input.RoleName property in your model 
+            because of the asp-for="Input.RoleName" attribute. *@
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
