@@ -1,4 +1,37 @@
-﻿using Humanizer;
+﻿/*You pass options to your context class (ApplicationDbContext), and through inheritance,
+those options are ultimately received by DbContext, which is where the actual EF Core database logic lives.
+This allows you to add customizations in ApplicationDbContext or IdentityDbContext if needed,
+while still ensuring the underlying DbContext has all the necessary configuration.
+
+No matter how many layers of inheritance you have (ApplicationDbContext → IdentityDbContext → DbContext),
+it is the DbContext at the root that actually connects and talks to your database.*/
+
+/*
+ApplicationDbContext is a custom database context class in ASP.NET Core
+that acts as a bridge between your C# code and the database,
+using Entity Framework Core(EF Core).
+
+ApplicationDbContext tells EF Core:
+How to connect to the database
+Which tables (entities) exist
+How to query or save data.
+(You use ApplicationDbContext in your services or controllers to call methods 
+like .Add(), .Find(), .Update(), .Remove(), and .SaveChangesAsync() to interact with the database)
+*/
+
+
+
+/*
+It connects your app to the database and sets up tables for users, roles, and leave types.
+It creates three roles: Employee, Supervisor, and Administrator.
+It adds a default admin user and puts them in the Administrator role.
+It has a place for storing different types of leave.
+In short, ApplicationDbContext helps your app keep track of users, their roles, and types of leave in the database.
+*/
+
+
+
+using Humanizer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -9,6 +42,16 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Policy;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Storage;
+using NuGet.ContentModel;
+using System.Reflection.Metadata;
+using Microsoft.DotNet.Scaffolding.Shared;
+using NuGet.Configuration;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Configuration;
+using System.Threading;
+using System;
 
 namespace LeaveManagementSystem.Web.Data
 {
@@ -18,30 +61,41 @@ namespace LeaveManagementSystem.Web.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        : base(options)
         {
-        }
+            /*DbContextOptions is a class in Entity Framework Core(EF Core) that holds configuration information for a DbContext.
+            It tells the DbContext how to connect to the database, which database provider to use (like SQL Server, SQLite, etc.),
+            and other settings such as logging, lazy loading, or command timeouts.*/
 
-        
-        protected override void OnModelCreating(ModelBuilder builder)
+            /*
+              This is the constructor for ApplicationDbContext.
+            It takes DbContextOptions<ApplicationDbContext> as a parameter.
+            These options include things like the connection string and database provider(e.g., SQL Server).
+
+            base(options):This passes the options to the base class constructor (constructor of IdentityDbContext<ApplicationUser>)
+            so that EF Core knows how to configure the database.
+            (Base Constructor Call (Constructor Chaining))
+             */
+        }
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        builder.Entity<IdentityRole>().HasData(
+        new IdentityRole
         {
-            base.OnModelCreating(builder);
-            builder.Entity<IdentityRole>().HasData(
-            new IdentityRole
-            {
-                Id= "b15308f5-eba8-43b4-80fe-b885d542014e", 
-                Name = "Employee",
-                NormalizedName = "EMPLOYEE"
-                
-                /*Why we use GUIDs for IDs: Always Unique
-                GUIDs make sure every role(like "Employee" or "Admin") 
-                has a unique ID that won’t accidentally match something else.*/
-                
-                // NormalizedName is used for case-insensitive comparisons
+            Id= "b15308f5-eba8-43b4-80fe-b885d542014e",
+            Name = "Employee",
+            NormalizedName = "EMPLOYEE"
+
+            /*Why we use GUIDs for IDs: Always Unique
+            GUIDs make sure every role(like "Employee" or "Admin") 
+            has a unique ID that won’t accidentally match something else.*/
+
+            // NormalizedName is used for case-insensitive comparisons
             },
-            new IdentityRole 
-            {
-                Id = "ad0a5c18-926f-46cf-97ef-dd3fa31366a0",
+        new IdentityRole
+        {
+            Id = "ad0a5c18-926f-46cf-97ef-dd3fa31366a0",
                 Name = "Supervisor",
                 NormalizedName = "SUPERVISOR"
 
@@ -95,15 +149,9 @@ namespace LeaveManagementSystem.Web.Data
 
   
 
-    /*
-    ApplicationDbContext is a custom database context class in ASP.NET Core
-    that acts as a bridge between your C# code and the database,
-    using Entity Framework Core(EF Core).
     
-    It tells EF Core:
-    How to connect to the database
-    Which tables (entities) exist
-    How to query or save data
-     
-     */
 }
+
+
+
+

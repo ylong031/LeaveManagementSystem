@@ -61,7 +61,11 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [BindProperty]
+        /*
+       you will get null reference when you call Input.Email,Input.Password etc in OnGetAsync 
+       if Input is not initialized.You are basically calling null.Email,null.Password
+       */
+       [BindProperty]
         public InputModel Input { get; set; }=new InputModel();
 
 
@@ -132,7 +136,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             
         }
 
-/* var roles =: Declares a new variable named roles.
+/* 
+var roles =: Declares a new variable named roles.
 await roleManager.Roles: Asynchronously accesses the list of roles from the database.
 .Select(q => q.Name): From each role object, take only the role's name (e.g., "Employee", "Supervisor").
 q => q.Name is a lambda expression: for each q in the collection, select q.Name.

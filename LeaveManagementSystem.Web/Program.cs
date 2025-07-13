@@ -2,14 +2,28 @@ using Humanizer;
 using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.EntityFrameworkCore;
+using NuGet.ContentModel;
 using System.ComponentModel;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+/*This retrieves the connection string named DefaultConnection from your appsettings.json.
+If it’s missing or null, it throws a clear error.*/
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+/*Tell ASP.NET Core: "I want to use a database context called ApplicationDbContext in my app."*/
+/*When setting it up, use SQL Server as the database, and connect to it using the connectionString variable.*/
+
+
+/*In this example, the options object inside the lambda is a DbContextOptionsBuilder,
+which configures things like the connection string and provider.
+This configuration is then used to create the DbContextOptions that get passed to your ApplicationDbContext.*/
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -26,6 +40,9 @@ I can just inject it the same way I injected the mapper and the context and so o
  * you delegate that responsibility to a framework or container 
  * � in this case, the IoC container.
 */
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

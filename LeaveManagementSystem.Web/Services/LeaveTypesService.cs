@@ -1,4 +1,14 @@
-﻿using AutoMapper;
+﻿/*
+Why Do We Need a Service (LeaveTypesService.cs)?
+
+Separation of Concerns
+The service keeps your business logic (how leave types are handled, validated, etc.) separate from your controllers
+(which handle HTTP requests).
+This makes your code cleaner, easier to maintain, and less cluttered.
+*/
+
+
+using AutoMapper;
 using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Models.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
@@ -16,31 +26,40 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
     {
         // Fetch all leave types from the database
         var data = await _context.LeaveTypes.ToListAsync();
+        //convert data into view model    
         var viewData = _mapper.Map<List<LeaveTypeReadOnlyVM>>(data);
         return viewData;
     }
 
     public async Task<T?> Get<T>(int id) where T : class // T? can be null
     {
-        var data = await _context.LeaveTypes.FirstOrDefaultAsync(x => x.Id == id);
-        /* First will look for the record and return the first element.
-        If nothing is present, it throws an exception  
+
+        /*
+        First will look for the record and return the first element
+        If nothing is present, it throws an exception           
 
         FirstOrDefault, which we know will look
-        for the first element that meets the condition, 
-        and if none is found,then it will return null.*/
+        for the first element that meets the condition,
+        and if none is found,then it will return null.   
+        */                
+        var data = await _context.LeaveTypes.FirstOrDefaultAsync(x => x.Id == id);
+        
 
         if (data == null)
         {
             return null;
         }
+        /*
+        Caller will specify the type of view model
+        they want to map to when they call the Get<T> method
+        type T this will be either LeaveTypeReadOnlyVM or LeaveTypeEditVM or LeaveTypeCreateVM
+        */                                                                                                                                                                                                                
         var viewData = _mapper.Map<T>(data);
-        /* Caller will specify the type of view model
-         they want to map to when they call the Get<T> method*/
+        
 
 
         return viewData;
-        //type T this will be either LeaveTypeReadOnlyVM or LeaveTypeEditVM or LeaveTypeCreateVM
+        
     }
     public async Task Remove(int id)
     {

@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 using System.Xml.Linq;
 using LeaveManagementSystem.Web.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -70,18 +71,6 @@ namespace LeaveManagementSystem.Web.Controllers
 
 
 
-        /* Go to the leave types table and get me the first or default record that matches this lambda expression.
-        So that's a lambda expression.
-        And the lambda expression is used in link statements to define some condition.
-        That must be true in order for the data to be returned.
-        So in other words, it must be true that there there is some ID.
-        So M here represents each record.
-        So it's going to go through each record.
-        So M here represents a record in the database or in that table rather.
-        So that represents a leave type object.
-        And then we're saying check for every leave type object or record.
-        Check the ID property to see if there is any.
-        That's equivalent to the ID value that came in,*/
 
 
         // GET: LeaveTypes/Details/5
@@ -102,7 +91,7 @@ namespace LeaveManagementSystem.Web.Controllers
             }
 
             
-            //Convert one data model into a view model.
+            
 
             return View(leaveType);
         }
@@ -132,29 +121,24 @@ namespace LeaveManagementSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
         {
-
-            /* if (leaveTypeCreate.Name.Contains("dumb")) 
-             {
-                 ModelState.AddModelError(nameof(leaveTypeCreate.Name), "the word dumb is not allowed."); 
-                 //custom error message
-             } */
-            /*This is a custom validation rule that checks 
-             * if the name contains the word "vacation".
-             If it does, it adds an error to the model state,
-            which will be displayed in the view.*/
-
+            
+            /*
+             If it finds duplication, it will add an error to the model state,
+             which will be displayed in the view
+            */
             if (await _leaveTypesService.CheckIfLeaveTypeNameExists(leaveTypeCreate.Name)) 
             {
+
                 ModelState.AddModelError(nameof(leaveTypeCreate.Name),
                     NameExistsValidationMessage);
-                //custom error message
+                
 
             }
 
 
             if (ModelState.IsValid) //it will also check if the field is empty or not
             {
-                await _leaveTypesService.Create(leaveTypeCreate); //Convert view model into data model
+                await _leaveTypesService.Create(leaveTypeCreate); 
                 return RedirectToAction(nameof(Index));  /*return to index*/
             }
             return View(leaveTypeCreate); /*if the model state is not valid, return to the view*/
@@ -171,7 +155,7 @@ namespace LeaveManagementSystem.Web.Controllers
             }
 
             var leaveType = await _leaveTypesService.Get<LeaveTypeEditVM>(id.Value);
-            //Get the leave type by id
+            //In the service,it will get the leave type in LeaveTypeEditVM by id 
 
 
             if (leaveType == null)
@@ -209,7 +193,8 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 try
                 {
-                  await _leaveTypesService.Edit(leaveTypeEdit); //Convert view model into data model and update it in the database
+                    //In the service,it will convert view model into data model and update it in the database
+                    await _leaveTypesService.Edit(leaveTypeEdit); 
                 }
                 catch (DbUpdateConcurrencyException)
                 {
