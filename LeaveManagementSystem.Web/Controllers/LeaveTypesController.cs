@@ -18,15 +18,13 @@ using System.Reflection.Metadata;
 using System.Security.Policy;
 using LeaveManagementSystem.Web.Models.LeaveTypes;
 using AutoMapper;
-using System.Numerics;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
-using System.Xml.Linq;
 using LeaveManagementSystem.Web.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 namespace LeaveManagementSystem.Web.Controllers
 {
+    /*Only allowing Administrator to access LeaveTypesController*/
+    [Authorize(Roles =Roles.Administrator)]
     public class LeaveTypesController(ILeaveTypesService _leaveTypesService) : Controller
     {
         /*Dependency Injection means that your classes don’t create the objects they need.

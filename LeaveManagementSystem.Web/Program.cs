@@ -1,15 +1,25 @@
+/*Dependency injection is a core concept in ASP.NET Core.
+It allows you to request (or "inject") dependencies (services) into classes instead of creating them manually.*/
+
+using Azure.Core;
 using Humanizer;
 using LeaveManagementSystem.Web.Data;
 using LeaveManagementSystem.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Microsoft.CodeAnalysis.Razor;
 using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.EntityFrameworkCore;
 using NuGet.ContentModel;
 using System.ComponentModel;
 using System.Reflection;
+using System.Security.Policy;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 var builder = WebApplication.CreateBuilder(args);
+ 
+
 
 
 /*This retrieves the connection string named DefaultConnection from your appsettings.json.
@@ -28,18 +38,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-
+/*AddScoped: One instance per HTTP request, reused throughout that request (like one waiter per meal).*/
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>();
-/*So now this service is registered in the IoC container and
-it is usable by other classes that are also registered in the container.
-There are some limitations, but generally speaking, anywhere I need the service,
-I can just inject it the same way I injected the mapper and the context and so on.*/
 
-/*IoC
- * Instead of you creating and managing dependencies manually,
- * you delegate that responsibility to a framework or container 
- * � in this case, the IoC container.
+
+
+/*
+When you add services with .AddTransient<IEmailSender, EmailSender>(), you are telling the DI container:
+"Whenever someone asks for IEmailSender, create a new instance of EmailSender and give them that."
 */
+
+
+/*The ResendEmailConfirmationModel class also has a constructor that takes an IEmailSender parameter and
+stores it in a private field (_emailSender).
+It uses _emailSender.SendEmailAsync(...) when resending the confirmation email.
+These scripts request IEmailSender via constructor injection,
+which is why you need to register your concrete implementation (EmailSender) in the dependency injection container in Program.cs.
+This allows ASP.NET Core to automatically provide your EmailSender class whenever IEmailSender is needed.*/
+
+/*AddTransient means a new instance of EmailSender will be created each time it's requested.
+  (like a new waiter for every single request during the meal).*/
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 

@@ -182,13 +182,13 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    if (Input.RoleName == "Supervisor") 
+                    if (Input.RoleName == Roles.Supervisor) 
                     {
-                        await _userManager.AddToRolesAsync(user,["Supervisor", "Employee"]);
+                        await _userManager.AddToRolesAsync(user,[Roles.Supervisor, Roles.Employee]);
                     }
                     else 
                     {
-                        await _userManager.AddToRoleAsync(user, "Employee");
+                        await _userManager.AddToRoleAsync(user, Roles.Employee);
 
                     }
 
