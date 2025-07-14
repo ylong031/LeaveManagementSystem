@@ -93,21 +93,29 @@ namespace LeaveManagementSystem.Web.Data
 
             // NormalizedName is used for case-insensitive comparisons
             },
+        
         new IdentityRole
         {
             Id = "ad0a5c18-926f-46cf-97ef-dd3fa31366a0",
                 Name = "Supervisor",
                 NormalizedName = "SUPERVISOR"
+            
+        },
+            
+        new IdentityRole 
+            
+        {
+            Id = "6114021a-4c3c-4052-bebd-ee35e7002e67",
+            Name = "Administrator",     
+            NormalizedName = "ADMINISTRATOR"
+            
+        }
+          
+            
+        );
 
-            },
-            new IdentityRole 
-            {
-                Id = "6114021a-4c3c-4052-bebd-ee35e7002e67",
-                Name = "Administrator",
-                NormalizedName = "ADMINISTRATOR"
-            }
-            );
-
+            
+            
             var hasher= new PasswordHasher<ApplicationUser>();
             builder.Entity<ApplicationUser>().HasData(
             new ApplicationUser
