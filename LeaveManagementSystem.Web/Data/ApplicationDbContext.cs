@@ -153,6 +153,10 @@ namespace LeaveManagementSystem.Web.Data
     if you need the database to start off with default values.*/
 
         public DbSet<LeaveType> LeaveTypes { get; set; }
+        public DbSet<Period> Periods { get; set; }
+
+        public DbSet<LeaveAllocation> LeaveAllocations { get; set; }
+
     }
 
   
