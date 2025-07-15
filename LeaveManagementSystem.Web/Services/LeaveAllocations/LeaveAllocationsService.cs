@@ -1,11 +1,15 @@
-﻿
+﻿using AutoMapper;
+using LeaveManagementSystem.Web.Models.LeaveAllocations;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata;
 
 namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 {
     public class LeaveAllocationsService(ApplicationDbContext _context,
-        IHttpContextAccessor _httpContextAccessor,UserManager<ApplicationUser> _userManager) : ILeaveAllocationsService
+        IHttpContextAccessor _httpContextAccessor,
+        UserManager<ApplicationUser> _userManager,
+        IMapper _mapper) : ILeaveAllocationsService
     {
         public async Task AllocateLeave(string employeeId)
         {
@@ -47,15 +51,45 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
             var leaveAllocations = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
-                .Include(q => q.Employee)
                 .Include(q => q.Period)
                 .Where(q => q.EmployeeId == user.Id)
                 .ToListAsync();
 
             return leaveAllocations;
         }
+
+        public async Task<EmployeeAllocationVM> GetEmployeeAllocations() 
+        {
+            var allocations = await GetAllocations();
+            var allocationVmList = _mapper.Map<List<LeaveAllocation>, List<LeaveAllocationVM>>(allocations);
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+
+            var employeeVm = new EmployeeAllocationVM
+            {
+                DateOfBirth=user.DateOfBirth,
+                Email=user.Email,
+                FirstName=user.FirstName,
+                LastName=user.LastName,
+                Id=user.Id,
+                LeaveAllocations=allocationVmList
+
+
+            };
+
+            return employeeVm;
+        }
+
     }
     
 }
+/*
+The code _httpContextAccessor.HttpContext?.User retrieves the user who is currently logged in to the website.
+This means it gets the identity (and claims) of the user making the current HTTP request.
+When you use this in your service, any queries or actions (like fetching leave allocations)
+will be performed for the currently authenticated user—the one who is signed in and using the site at that moment.
+*/
 
+/*
+_userManager.GetUserAsync(...) takes that identity and retrieves the full user object from your database.
+*/
 

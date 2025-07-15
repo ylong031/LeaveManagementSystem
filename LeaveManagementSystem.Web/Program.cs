@@ -53,6 +53,10 @@ This allows ASP.NET Core to automatically provide your EmailSender class wheneve
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+/*
+IHttpContextAccessor provides access to the current HttpContext (which contains information about the HTTP request, user, session, etc.)
+from places where it isn’t directly available (e.g., background services or repositories).
+*/
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
