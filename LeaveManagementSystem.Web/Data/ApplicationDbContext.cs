@@ -35,23 +35,24 @@ using Humanizer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using NuGet.Configuration;
+using NuGet.ContentModel;
 using NuGet.Packaging.Signing;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System;
+using System.Configuration;
+using System.Data;
+using System.Reflection.Metadata;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Policy;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Data;
-using Microsoft.EntityFrameworkCore.Storage;
-using NuGet.ContentModel;
-using System.Reflection.Metadata;
-using Microsoft.DotNet.Scaffolding.Shared;
-using NuGet.Configuration;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Configuration;
 using System.Threading;
-using System;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LeaveManagementSystem.Web.Data
 {
@@ -60,6 +61,8 @@ namespace LeaveManagementSystem.Web.Data
     (likely inheriting from ApplicationUser) instead of the default one.*/
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        /*the DbContextOptions<ApplicationDbContext> options parameter is provided via dependency injection.*/
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {

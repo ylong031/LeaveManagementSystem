@@ -14,7 +14,7 @@ using LeaveManagementSystem.Web.Models.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
 using System.Xml.Linq;
-namespace LeaveManagementSystem.Web.Services;
+namespace LeaveManagementSystem.Web.Services.LeaveTypes;
 
 /*A primary constructor is a feature that allows you
 to declare constructor parameters directly in the class*/

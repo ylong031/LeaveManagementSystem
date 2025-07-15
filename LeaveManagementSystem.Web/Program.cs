@@ -1,21 +1,13 @@
 /*Dependency injection is a core concept in ASP.NET Core.
 It allows you to request (or "inject") dependencies (services) into classes instead of creating them manually.*/
 
-using Azure.Core;
-using Humanizer;
-using LeaveManagementSystem.Web.Data;
-using LeaveManagementSystem.Web.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
-using Microsoft.CodeAnalysis.Razor;
-using Microsoft.DotNet.Scaffolding.Shared;
+
+using LeaveManagementSystem.Web.Services.Email;
+using LeaveManagementSystem.Web.Services.LeaveAllocations;
+using LeaveManagementSystem.Web.Services.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
-using NuGet.ContentModel;
-using System.ComponentModel;
 using System.Reflection;
-using System.Security.Policy;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 var builder = WebApplication.CreateBuilder(args);
  
@@ -41,7 +33,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 /*AddScoped: One instance per HTTP request, reused throughout that request (like one waiter per meal).*/
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>();
 
-
+builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>();
 
 /*
 When you add services with .AddTransient<IEmailSender, EmailSender>(), you are telling the DI container:

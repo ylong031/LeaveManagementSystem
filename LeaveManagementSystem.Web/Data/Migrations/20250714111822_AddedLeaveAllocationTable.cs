@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 #nullable disable
 
@@ -42,10 +45,13 @@ namespace LeaveManagementSystem.Web.Data.Migrations
                     table.PrimaryKey("PK_LeaveAllocations", x => x.Id);
                     table.ForeignKey(
                         name: "FK_LeaveAllocations_AspNetUsers_EmployeeId",
-                        column: x => x.EmployeeId,
+                        column: x => x.EmployeeId, /*Sets the foreign key column in this table.*/
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id", /*Links to the Id column of the AspNetUsers table.*/
+                        onDelete: ReferentialAction.Cascade);/*If a user is deleted, related leave allocations are also deleted.*/             
+                    /* ReferentialAction.restrict here would mean that if you try to delete the employee because you have some related records,
+                * you cannot delete the employee unless you delete all the related records.
+                * So that would make it very difficult for you to even accidentally remove the primary record.*/
                     table.ForeignKey(
                         name: "FK_LeaveAllocations_LeaveTypes_LeaveTypeId",
                         column: x => x.LeaveTypeId,

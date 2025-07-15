@@ -1,24 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using LeaveManagementSystem.Web.Data;
-using NuGet.ContentModel;
-using System.Drawing;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Microsoft.Extensions.FileSystemGlobbing;
-using NuGet.Packaging.Signing;
-using System.Runtime.Intrinsics.X86;
-using Humanizer;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Reflection.Metadata;
-using System.Security.Policy;
+﻿using Microsoft.EntityFrameworkCore;
 using LeaveManagementSystem.Web.Models.LeaveTypes;
-using AutoMapper;
-using LeaveManagementSystem.Web.Services;
+using LeaveManagementSystem.Web.Services.LeaveTypes;
 
 
 namespace LeaveManagementSystem.Web.Controllers

@@ -1,15 +1,5 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Build.Framework;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
-using Newtonsoft.Json.Linq;
-using NuGet.Configuration;
-using NuGet.Protocol.Plugins;
-using System;
-using System.Configuration;
-using System.Net.Mail;
-namespace LeaveManagementSystem.Web.Services
+﻿using System.Net.Mail;
+namespace LeaveManagementSystem.Web.Services.Email
 {
     /*It uses constructor injection to receive an IConfiguration object (_configuration),
     which allows it to access settings from the configuration file
