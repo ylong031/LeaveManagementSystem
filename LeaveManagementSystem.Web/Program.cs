@@ -53,7 +53,7 @@ This allows ASP.NET Core to automatically provide your EmailSender class wheneve
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 /*

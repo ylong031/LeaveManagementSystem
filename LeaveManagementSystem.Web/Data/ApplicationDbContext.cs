@@ -31,28 +31,11 @@ In short, ApplicationDbContext helps your app keep track of users, their roles, 
 
 
 
-using Humanizer;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.DotNet.Scaffolding.Shared;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
-using NuGet.Configuration;
-using NuGet.ContentModel;
-using NuGet.Packaging.Signing;
-using System;
-using System.Configuration;
-using System.Data;
-using System.Reflection.Metadata;
-using System.Runtime.Intrinsics.X86;
-using System.Security.Policy;
-using System.Threading;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace LeaveManagementSystem.Web.Data
 {

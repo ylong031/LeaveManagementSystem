@@ -1,7 +1,9 @@
-﻿namespace LeaveManagementSystem.Web.Services.LeaveAllocations
+﻿
+namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 {
     public interface ILeaveAllocationsService
     {
-        Task AllocattionLeave(string employeeId);
+        Task AllocateLeave(string employeeId);
+        Task<List<LeaveAllocation>> GetAllocations();
     }
 }
