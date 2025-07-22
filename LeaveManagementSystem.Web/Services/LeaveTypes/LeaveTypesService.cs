@@ -111,5 +111,12 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
         //error message will be shown if name already exists in other ids
     }
 
+    public async Task<bool> DaysExceedMaximum(int leaveTypeId,int days) 
+    {
+        var leaveType = await _context.LeaveTypes.FindAsync(leaveTypeId);
+        return leaveType.NumberOfDays < days;
+    
+    }
+
 }
  
