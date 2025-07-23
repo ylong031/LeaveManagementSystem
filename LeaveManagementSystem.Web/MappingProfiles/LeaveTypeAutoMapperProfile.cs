@@ -9,19 +9,11 @@ namespace LeaveManagementSystem.Web.MappingProfiles
         public LeaveTypeAutoMapperProfile() 
         {
             CreateMap<LeaveType, LeaveTypeReadOnlyVM>();
-           
 
-            /*And then I have to take this data,
-            convert it into the data model and then send it to the database.*/
             CreateMap<LeaveTypeCreateVM, LeaveType>();
            
-
-
             //Two way mapping
             CreateMap<LeaveTypeEditVM, LeaveType>().ReverseMap();
-
-      
-
 
         }
 

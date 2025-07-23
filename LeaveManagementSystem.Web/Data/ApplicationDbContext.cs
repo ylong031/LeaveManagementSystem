@@ -32,9 +32,11 @@ In short, ApplicationDbContext helps your app keep track of users, their roles, 
 
 
 
+using LeaveManagementSystem.Web.Data.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 
 namespace LeaveManagementSystem.Web.Data
@@ -63,69 +65,17 @@ namespace LeaveManagementSystem.Web.Data
             (Base Constructor Call (Constructor Chaining))
              */
         }
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        base.OnModelCreating(builder);
-        builder.Entity<IdentityRole>().HasData(
-        new IdentityRole
+    
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            Id= "b15308f5-eba8-43b4-80fe-b885d542014e",
-            Name = "Employee",
-            NormalizedName = "EMPLOYEE"
+            base.OnModelCreating(builder);
 
-            /*Why we use GUIDs for IDs: Always Unique
-            GUIDs make sure every role(like "Employee" or "Admin") 
-            has a unique ID that won’t accidentally match something else.*/
 
-            // NormalizedName is used for case-insensitive comparisons
-            },
-        
-        new IdentityRole
-        {
-            Id = "ad0a5c18-926f-46cf-97ef-dd3fa31366a0",
-                Name = "Supervisor",
-                NormalizedName = "SUPERVISOR"
-            
-        },
-            
-        new IdentityRole 
-            
-        {
-            Id = "6114021a-4c3c-4052-bebd-ee35e7002e67",
-            Name = "Administrator",     
-            NormalizedName = "ADMINISTRATOR"
-            
-        }
-          
-            
-        );
+            // This will automatically apply all configurations defined in the current assembly
+            // such as LeaveRequestStatusConfiguration, IdentityRoleConfiguration, etc.
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            
-            
-            var hasher= new PasswordHasher<ApplicationUser>();
-            builder.Entity<ApplicationUser>().HasData(
-            new ApplicationUser
-            {
-                Id = "371fde73-4b3e-4038-8c02-f68bcbf32497",
-                Email="admin@gmail.com",
-                NormalizedEmail = "ADMIN@GMAIL.COM",
-                NormalizedUserName = "ADMIN@GMAIL.COM",
-                UserName = "admin@gmail.com",
-                PasswordHash = hasher.HashPassword(null,"Pokemon@123"),
-                EmailConfirmed = true,
-                FirstName = "Default",
-                LastName = "Admin",
-                DateOfBirth = new DateOnly(1990, 1, 1) 
-            }
-            );
 
-            builder.Entity<IdentityUserRole<string>>().HasData(
-            new IdentityUserRole<string> 
-            {
-                RoleId = "6114021a-4c3c-4052-bebd-ee35e7002e67", // Administrator Role
-                UserId = "371fde73-4b3e-4038-8c02-f68bcbf32497" // Admin User
-            } //ManyToMany Relationship join table      
-            );
         }
         /* 
     if you need to have default LeaveTypes in the system,
