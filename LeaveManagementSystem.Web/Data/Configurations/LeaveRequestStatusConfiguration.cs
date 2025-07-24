@@ -26,7 +26,7 @@ namespace LeaveManagementSystem.Web.Data.Configurations
             new LeaveRequestStatus
             {
                 Id = 4,   
-                Name = "Canceled"
+                Name = "Cancelled"
             });
                 
         }

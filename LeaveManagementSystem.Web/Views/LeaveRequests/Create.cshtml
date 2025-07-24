@@ -24,7 +24,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="LeaveTypeId" class="control-label"></label>
-                
+               @*  
+                asp-for="LeaveTypeId" binds the selected value to the LeaveTypeId property in your model when the form is submitted.
+                asp-items="Model.LeaveTypes" populates the dropdown options using the LeaveTypes SelectList from your model,
+                where each option's value will be the leave type's Id and the displayed text will be the leave type's Name. 
+                the value (such as the selected LeaveTypeId from your dropdown) must go to the server in order for model binding to happen.
+                *@
                 <select asp-for="LeaveTypeId" class ="form-select" asp-items="Model.LeaveTypes"></select>
             </div>
             <div class="form-group">
