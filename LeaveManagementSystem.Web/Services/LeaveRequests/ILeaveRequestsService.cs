@@ -5,9 +5,9 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
     public interface ILeaveRequestsService
     {
         Task CreateLeaveRequest(LeaveRequestCreateVM model);
-        Task<EmployeeLeaveRequestListVM> GetEmployeeLeaveRequests();
+        Task<List<LeaveRequestReadOnlyVM>> GetEmployeeLeaveRequests();
 
-        Task<LeaveRequestListVM> GetAllLeaveRequests();
+        Task<EmployeeLeaveRequestListVM> AdminGetAllLeaveRequests();
 
         Task CancelLeaveRequest(int leaveRequestId);
 

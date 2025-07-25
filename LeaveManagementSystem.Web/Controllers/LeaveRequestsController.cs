@@ -16,11 +16,14 @@ namespace LeaveManagementSystem.Web.Controllers
         //Employee View requests
         public async Task<IActionResult> Index()
         {
-            return View();
+            var model = await _leaveRequestsService.GetEmployeeLeaveRequests();
+            return View(model);
         }
         //Employee Create requests
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? id)
         {
+            int leaveTypeId = id ?? 1; // If id is null, default to 1 (assuming 1 is a valid leave type ID)
+          
             var leaveTypes = await _leaveTypesService.GetAll();
 
             /* 
@@ -34,7 +37,8 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 StartDate = DateOnly.FromDateTime(DateTime.Now),
                 EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-                LeaveTypes = leaveTypesList
+                LeaveTypes = leaveTypesList,
+                LeaveTypeId = leaveTypeId // Set the default leave type ID
             };
             return View(model);
         }
@@ -46,14 +50,16 @@ namespace LeaveManagementSystem.Web.Controllers
             //Validate that the days don't exceed the allocation
             if (await _leaveRequestsService.RequestDatesExceedAllocation(model))
             {
+                //Top of the screen error
                 ModelState.AddModelError(string.Empty, "You have exceeded your allocation");
+                //under the EndDate field error
                 ModelState.AddModelError(nameof(model.EndDate), "The number of days requested is invalid");
             }
 
             if (ModelState.IsValid) 
             {
                 await _leaveRequestsService.CreateLeaveRequest(model);
-
+                return RedirectToAction(nameof(Index));
             }
             
             /*           

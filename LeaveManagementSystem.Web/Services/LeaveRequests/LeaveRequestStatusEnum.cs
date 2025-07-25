@@ -1,8 +1,7 @@
 ﻿namespace LeaveManagementSystem.Web.Services.LeaveRequests
 {
-    public partial class LeaveRequestsService
-    {
-        public enum LeaveRequestStatus
+   
+        public enum LeaveRequestStatusEnum
         {
             Pending=1,
             Approved=2,
@@ -12,6 +11,7 @@
         }
 
 
-    }
+    
 }
+
    

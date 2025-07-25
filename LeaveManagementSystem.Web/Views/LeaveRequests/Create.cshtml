@@ -30,6 +30,7 @@
                 where each option's value will be the leave type's Id and the displayed text will be the leave type's Name. 
                 the value (such as the selected LeaveTypeId from your dropdown) must go to the server in order for model binding to happen.
                 *@
+
                 <select asp-for="LeaveTypeId" class ="form-select" asp-items="Model.LeaveTypes"></select>
             </div>
             <div class="form-group">
@@ -39,7 +40,7 @@
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-success" />
-                <a asp-controller="LeaveAllocation" asp-action="Details" class="btn btn-danger">Cancel</a>
+                <a  asp-action="Index" class="btn btn-danger">Cancel</a>
             </div>
         </form>
     </div>

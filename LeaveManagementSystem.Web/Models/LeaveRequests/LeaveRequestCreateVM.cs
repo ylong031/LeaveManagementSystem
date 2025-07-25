@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
+using System.Runtime.Intrinsics.X86;
 
 namespace LeaveManagementSystem.Web.Models.LeaveRequests
 {
@@ -27,10 +28,17 @@ namespace LeaveManagementSystem.Web.Models.LeaveRequests
         {
             if (StartDate > EndDate) 
             {
+              /*  The error message will be shown under both the StartDate and EndDate fields.*/
                 yield return new ValidationResult("The Start Date must be before the End Date",
                     [nameof(StartDate),nameof(EndDate)]);
             
             }
         }
+        /*
+         Use IValidatableObject when you need to implement custom validation logic 
+         that involves multiple properties of a model, or when you need validation 
+         that cannot be expressed using simple data annotations like [Required], [Range], [StringLength]
+         It’s especially useful in ViewModels for UI validation scenarios.
+        */
     }
 }

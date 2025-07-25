@@ -22,7 +22,7 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
 
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
             leaveRequest.EmployeeId = user.Id;
-            leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatus.Pending;
+            leaveRequest.LeaveRequestStatusId = (int)LeaveRequestStatusEnum.Pending;
             _context.LeaveRequests.Add(leaveRequest);
          
 
@@ -30,18 +30,32 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             var allocationToDeduct = await _context.LeaveAllocations
                 .FirstAsync(q => q.EmployeeId == user.Id && q.LeaveTypeId == model.LeaveTypeId);
 
-            allocationToDeduct.Days =- numberOfDays;
+            allocationToDeduct.Days -= numberOfDays;
             await _context.SaveChangesAsync();
         }
 
-        public Task<LeaveRequestListVM> GetAllLeaveRequests()
-        {
-            throw new NotImplementedException();
-        }
+    
 
-        public Task<EmployeeLeaveRequestListVM> GetEmployeeLeaveRequests()
+
+        public async Task<List<LeaveRequestReadOnlyVM>> GetEmployeeLeaveRequests()
         {
-            throw new NotImplementedException();
+            var user = await _userManager.GetUserAsync(_httpContextAccessor?.HttpContext?.User);
+            var leaveRequests = await _context.LeaveRequests
+                .Include(q => q.LeaveType)
+                .Where(q => q.EmployeeId == user.Id)
+                .ToListAsync();
+            var model = leaveRequests.Select(q => new LeaveRequestReadOnlyVM
+            {
+                StartDate = q.StartDate,
+                EndDate = q.EndDate,
+                Id = q.Id,
+                LeaveType = q.LeaveType.Name,
+                LeaveRequestStatus = (LeaveRequestStatusEnum)q.LeaveRequestStatusId,
+                NumberOfDays = q.EndDate.DayNumber - q.StartDate.DayNumber,
+
+
+            }).ToList();
+            return model;
         }
 
         public async Task<bool> RequestDatesExceedAllocation(LeaveRequestCreateVM model)
@@ -58,7 +72,10 @@ namespace LeaveManagementSystem.Web.Services.LeaveRequests
             throw new NotImplementedException();
         }
 
-
+        Task<EmployeeLeaveRequestListVM> ILeaveRequestsService.AdminGetAllLeaveRequests()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
    
