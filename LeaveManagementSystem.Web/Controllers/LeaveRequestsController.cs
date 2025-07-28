@@ -1,4 +1,5 @@
-﻿using LeaveManagementSystem.Web.Models.LeaveRequests;
+﻿using Humanizer;
+using LeaveManagementSystem.Web.Models.LeaveRequests;
 using LeaveManagementSystem.Web.Services.LeaveRequests;
 using LeaveManagementSystem.Web.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc;
@@ -72,12 +73,15 @@ namespace LeaveManagementSystem.Web.Controllers
             return View(model);
         }
 
+        /*[HttpPost] = Only respond to POST requests(form submissions).*/
+       /* [ValidateAntiForgeryToken] is a safety feature in ASP.NET that helps protect your website from fake form submissions.*/
         //Employee Cancel requests
         [HttpPost]
-        public async Task<IActionResult> Cancel(int leaveRequestId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
         {
-
-            return View();
+            await _leaveRequestsService.CancelLeaveRequest(id);
+            return RedirectToAction(nameof(Index));
         }
         //Admin/Supervisor review Requests
         public async Task<IActionResult> ListRequests()

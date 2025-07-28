@@ -72,9 +72,19 @@
             &copy; 2025 - LeaveManagementSystem.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script> @* Jquery *@
+
+    @* Sweet Alert must be beneath jquery as it relies on Jquery*@
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false) 
 </body>
 </html>
+
+@* If you don’t use a section (like "Scripts"),
+any JavaScript you put in your child views will be rendered immediately—possibly at the top or in the middle of the HTML,
+which can break your page or cause scripts to run too early.(cannot find html elements)
+But When you use @await RenderSectionAsync("Scripts", required: false),
+Only the content inside @section Scripts { ... } in your child views will be rendered at that spot (usually at the bottom of your layout).
+This makes sure scripts are loaded after the rest of the page, which is good practice. *@

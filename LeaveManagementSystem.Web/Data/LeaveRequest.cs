@@ -10,6 +10,8 @@ The foreign key is not nullable to enforce a required relationship in your datab
 */
 
 
+
+
 namespace LeaveManagementSystem.Web.Data
 {
     public class LeaveRequest: BaseEntity

@@ -72,13 +72,70 @@
 					<span class="badge rounded-pill bg-@className">@item.LeaveRequestStatus.ToString()</span>
                 </td>
                 <td>
+                    
+                    @*                  
+                    We discussed that any time you have a feature that's going to augment data in the system, 
+                    do not just create a URL that goes to some action to just trigger some very detrimental system change.
+                    Always try and wrap it inside of a form.    
+                    *@
+
+                    @* 
+                    The downside to that form.
+                    For every leave request that is pending,
+                    we're actually going to have that form being generated.    
+                    And I don't know if you really want 50 forms on the page.      
+                   *@
+
                     @if (item.LeaveRequestStatus == LeaveRequestStatusEnum.Pending)
                     {
-                        @* yellow *@
-                        <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger">Cancel</a> 
+                       <button data-id="@item.Id" class="btn btn-danger cancelBtn">Cancel</button>
+                        
                     }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@*                            
+asp-for="@item.Id" and the name is literally item.id       
+So I'm going to override that name value to match the parameter in the cancel method 
+
+a cancel button that performs an action 
+(like canceling a request or deleting data on the server)                             
+should be inside a <form>                            
+*@
+
+<form id="cancelForm" asp-action="Cancel">
+    <input type="hidden" name="id" id="leaveRequestId" />
+</form>
+
+@section Scripts {
+    <script>
+        $(function(){
+            $('.cancelBtn').click(
+                function(e)
+                {
+                    
+                    swal({
+                        title:"Are you sure?",
+						text:"Are you sure you want to cancel this leave request?",
+                        icon:"warning",
+                        buttons: true,
+						dangerMode: true,
+                    }).then((confirm)=>{
+                        if(confirm)
+                        {
+							var btn=$(this);
+                            var id=btn.data('id');
+                            $('#leaveRequestId').val(id);
+							$('#cancelForm').submit();
+						}
+                    });
+                    
+                
+                }
+            );
+        });
+    </script>
+}
