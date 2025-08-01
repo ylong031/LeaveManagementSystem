@@ -4,6 +4,8 @@ using LeaveManagementSystem.Web.Services.LeaveAllocations;
 using LeaveManagementSystem.Web.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
+using NuGet.Configuration;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.NetworkInformation;
 using System.Runtime.Intrinsics.X86;
@@ -16,6 +18,8 @@ namespace LeaveManagementSystem.Web.Controllers
         ILeaveTypesService _leaveTypesService 
         ) : Controller
     {
+
+        /*For Admin to get the list of employees*/
         [Authorize(Roles=Roles.Administrator)]
         public async Task<IActionResult> Index()
         {
@@ -109,6 +113,8 @@ namespace LeaveManagementSystem.Web.Controllers
         */
 
         //employees(null) and administrator(not null)
+
+        // This method retrieves the leave allocations for a specific employee
         public async Task<IActionResult> Details(string? userId)
         {
             var employeeVm=await _leaveAllocationsService.GetEmployeeAllocations(userId);

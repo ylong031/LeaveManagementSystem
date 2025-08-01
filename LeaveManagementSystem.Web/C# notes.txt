@@ -72,3 +72,58 @@ Benefits:
 Data protection (prevents unwanted access/modification)
 Easier maintenance
 Improved code organization and readability
+
+_______________________________________________________________________________________
+
+Upcasting to access overriden methods in child class and base class methods.
+downcasting to access child class methods.
+
+
+
+class Animal
+{
+    public virtual void Speak() { Console.WriteLine("Animal speaks"); }
+}
+
+class Dog : Animal
+{
+    public override void Speak() { Console.WriteLine("Dog barks"); }
+    public void WagTail() { Console.WriteLine("Dog wags tail"); }
+}
+
+ ---Upcasting (Safe & Implicit)---
+
+Dog dog = new Dog();
+Animal animal = dog; // Upcasting (We use this to use overridden methods in the child class)
+animal.Speak();      // Calls Dog’s Speak() due to polymorphism
+animal.WagTail(); ❌ Not allowed, as WagTail is not in Animal class
+
+________________________________________________________________________________________
+
+---Downcasting (Explicit & Risky)---
+
+Animal animal = new Dog();   // Upcast
+Dog dog = (Dog)animal;       // Downcast
+dog.WagTail();               // OK
+
+DANGER: If the object isn't actually a Dog, it throws InvalidCastException:
+
+
+Animal a = new Animal();
+Dog d = (Dog)a; // ❌ Runtime crash!
+
+___________________________________________________________________________________________
+Safe Downcasting
+Option 1: Using is pattern
+
+if (animal is Dog dog)
+{
+    dog.WagTail();
+}
+Option 2: Using as
+
+Dog dog = animal as Dog;
+if (dog != null)
+{
+    dog.WagTail();
+}

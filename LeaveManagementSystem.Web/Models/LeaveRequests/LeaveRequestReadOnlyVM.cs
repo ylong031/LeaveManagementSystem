@@ -22,5 +22,7 @@ namespace LeaveManagementSystem.Web.Models.LeaveRequests
         [DisplayName("Status")]
         public LeaveRequestStatusEnum LeaveRequestStatus { get; set; }
 
+        public string Employee { get; set; } = string.Empty;
+
     }
 }

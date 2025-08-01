@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using LeaveManagementSystem.Web.Models.LeaveAllocations;
+using LeaveManagementSystem.Web.Services.Periods;
+using LeaveManagementSystem.Web.Services.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,9 +11,10 @@ using static NuGet.Packaging.PackagingConstants;
 namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 {
     public class LeaveAllocationsService(ApplicationDbContext _context,
-        IHttpContextAccessor _httpContextAccessor,
-        UserManager<ApplicationUser> _userManager,
-        IMapper _mapper) : ILeaveAllocationsService
+       
+        IMapper _mapper,
+        IPeriodsService _periodsService,
+        IUserService _userService) : ILeaveAllocationsService
     {
         public async Task AllocateLeave(string employeeId)
         {
@@ -20,13 +23,10 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             var leaveTypes = await _context.LeaveTypes
                 .Where(q => !q.LeaveAllocations.Any(x=>x.EmployeeId==employeeId))
                 .ToListAsync();
-            
-            
-            //get the current period based on the year
-            var currentDate= DateTime.Now;
-            //SingleAsync will throw an exception if it finds more than one entry
-            var period = await _context.Periods.SingleAsync(q => q.EndDate.Year == currentDate.Year);
-            var monthsRemaining=period.EndDate.Month-currentDate.Month;
+
+
+            var period = await _periodsService.GetCurrentPeriod();
+            var monthsRemaining=period.EndDate.Month-DateTime.Now.Month;
 
            
 
@@ -51,14 +51,21 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
 
 
         }
-       
+
+
+
+
+
 
         //employees(null) and administrator(not null)
+
+        // For admin to retrieve the leave allocations for a specific employee
+        // For employees to retrieve their own leave allocations
         public async Task<EmployeeAllocationVM> GetEmployeeAllocations(string? userId) 
         {
             var user = string.IsNullOrEmpty(userId)
-                ? await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User) //null or empty
-                : await _userManager.FindByIdAsync(userId); //has a value
+                ? await _userService.GetLoggedInUser()
+                : await _userService.GetUserById(userId);
 
 
             var allocations = await GetAllocations(user.Id);
@@ -84,16 +91,44 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
             return employeeVm;
         }
 
+
+        //we didnt .Include employee details as we dont want to retrieve the employee details for every leaveallocation
+        //since we are already going to retrieve just once in the GetEmployeeAllocations method
+
+        //retreive the list of leaveallocations(sick leave,annual leave) of the login user
+        private async Task<List<LeaveAllocation>> GetAllocations(string? userId)
+        {
+
+            var period = await _periodsService.GetCurrentPeriod();
+
+            var leaveAllocations = await _context.LeaveAllocations
+                .Include(q => q.LeaveType)
+                .Include(q => q.Period)
+                .Where(q => q.EmployeeId == userId && q.Period.Id == period.Id)
+                .ToListAsync();
+
+            return leaveAllocations;
+        }
+
+
+
+
+
+        /*For Admin to get the list of employees*/
         public async Task<List<EmployeeListVM>> GetEmployees() 
         {
-            var users = await _userManager.GetUsersInRoleAsync(Roles.Employee);
+            var users = await _userService.GetEmployees();
             var employees=_mapper.Map<List<ApplicationUser>, List<EmployeeListVM>>(users.ToList());
 
             return employees;
         }
-       /* Use.Include() to load related entities(via navigation properties/foreign keys).
-        both the LeaveType and Employee objects are loaded for each LeaveAllocation, not just their foreign key IDs.*/
+        
+        
+        
+        /* Use.Include() to load related entities(via navigation properties/foreign keys).
+         both the LeaveType and Employee objects are loaded for each LeaveAllocation, not just their foreign key IDs.*/
 
+        //retrieve the specific leave allocation by its ID for editing purposes
         public async Task<LeaveAllocationEditVM> GetEmployeeAllocation(int allocationId)
         {
             // Retrieve the leave allocation by its ID, including related LeaveType and Employee details
@@ -132,27 +167,26 @@ namespace LeaveManagementSystem.Web.Services.LeaveAllocations
         }
 
 
-        //retreive the list of leaveallocations(sick leave,annual leave) of the login user
-        //we didnt .Include employee details as we dont want to retrieve the employee details for every leaveallocation
-        //since we are already going to retrieve just once in the GetEmployeeAllocations method
-        private async Task<List<LeaveAllocation>> GetAllocations(string? userId)
+
+
+        // retrieve a specific leave allocation based on the leave type and employee ID
+        public async Task<LeaveAllocation> GetCurrentAllocation(int leaveTypeId, string employeeId)
         {
 
-            var currentDate = DateTime.Now;
+            var period=await _periodsService.GetCurrentPeriod();
+            var allocation = await _context.LeaveAllocations
+                .FirstAsync(q => q.LeaveTypeId == leaveTypeId 
+                && q.EmployeeId == employeeId 
+                && q.PeriodId == period.Id);
+            return allocation;
 
-            var leaveAllocations = await _context.LeaveAllocations
-                .Include(q => q.LeaveType)
-                .Include(q => q.Period)
-                .Where(q => q.EmployeeId == userId && q.Period.EndDate.Year == currentDate.Year)
-                .ToListAsync();
-
-            return leaveAllocations;
         }
 
-   
     }
     
 }
+
+
 
 
 

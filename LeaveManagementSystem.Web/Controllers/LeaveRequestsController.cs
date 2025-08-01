@@ -10,36 +10,41 @@ using System.Collections.Generic;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
+    //only authenticated users can access this controller
     [Authorize]
-    public class LeaveRequestsController(ILeaveTypesService _leaveTypesService,ILeaveRequestsService _leaveRequestsService
+    public class LeaveRequestsController(ILeaveTypesService _leaveTypesService, ILeaveRequestsService _leaveRequestsService
         ) : Controller
     {
         //Employee View requests
         public async Task<IActionResult> Index()
         {
-            var model = await _leaveRequestsService.GetEmployeeLeaveRequests();
+            var model = await _leaveRequestsService.GetEmployeeLeaveRequestsHistory();
             return View(model);
         }
         //Employee Create requests
-        public async Task<IActionResult> Create(int? id)
+        public async Task<IActionResult> Create(int? leaveTypeId)
         {
-            int leaveTypeId = id ?? 1; // If id is null, default to 1 (assuming 1 is a valid leave type ID)
-          
+
+
             var leaveTypes = await _leaveTypesService.GetAll();
+
 
             /* 
             Converts the list of leave types into a SelectList,
             which is suitable for binding to a dropdown list in the view(displaying the name, but using the ID as the value).
             When a user selects an option and submits the form, the value sent to the server is the selected option's Id, not its name.
-            */
+            
+            leaveTypeId is the selected leave type Id, if it is null,
+            it will default to the first item in the list.
+             */
 
-            var leaveTypesList =new SelectList(leaveTypes, "Id", "Name");
+            var leaveTypesList = new SelectList(leaveTypes, "Id", "Name", leaveTypeId);
             var model = new LeaveRequestCreateVM
             {
                 StartDate = DateOnly.FromDateTime(DateTime.Now),
                 EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 LeaveTypes = leaveTypesList,
-                LeaveTypeId = leaveTypeId // Set the default leave type ID
+
             };
             return View(model);
         }
@@ -57,12 +62,12 @@ namespace LeaveManagementSystem.Web.Controllers
                 ModelState.AddModelError(nameof(model.EndDate), "The number of days requested is invalid");
             }
 
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 await _leaveRequestsService.CreateLeaveRequest(model);
                 return RedirectToAction(nameof(Index));
             }
-            
+
             /*           
             If the model state is not valid, 
             we need to repopulate the LeaveTypes list
@@ -74,7 +79,7 @@ namespace LeaveManagementSystem.Web.Controllers
         }
 
         /*[HttpPost] = Only respond to POST requests(form submissions).*/
-       /* [ValidateAntiForgeryToken] is a safety feature in ASP.NET that helps protect your website from fake form submissions.*/
+        /* [ValidateAntiForgeryToken] is a safety feature in ASP.NET that helps protect your website from fake form submissions.*/
         //Employee Cancel requests
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -83,24 +88,29 @@ namespace LeaveManagementSystem.Web.Controllers
             await _leaveRequestsService.CancelLeaveRequest(id);
             return RedirectToAction(nameof(Index));
         }
+
+
         //Admin/Supervisor review Requests
+        [Authorize(Policy="AdminSupervisorOnly")]
         public async Task<IActionResult> ListRequests()
         {
-            return View();
+            var model = await _leaveRequestsService.AdminGetAllLeaveRequests();
+            return View(model);
         }
 
         //Admin/Supervisor review Requests
-        public async Task<IActionResult> Review(int leaveRequestId)
+        public async Task<IActionResult> Review(int id)
         {
-            return View();
+            var model = await _leaveRequestsService.GetLeaveRequestForReview(id);
+            return View(model);
         }
         //Admin/Supervisor review Requests
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Review(/*Use View Model*/)
+        public async Task<IActionResult> Review(int id,bool approved )
         {
-
-            return View();
+            await _leaveRequestsService.ReviewLeaveRequest(id,approved);
+            return RedirectToAction(nameof(ListRequests));
         }
     }
 }

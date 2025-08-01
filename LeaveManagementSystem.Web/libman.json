@@ -8,6 +8,10 @@
       "files": [
         "sweetalert.min.js"
       ]
+    },
+    {
+      "library": "jqueryui@1.14.1",
+      "destination": "wwwroot/lib/jqueryui/"
     }
   ]
 }

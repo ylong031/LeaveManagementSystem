@@ -89,8 +89,15 @@
                     @if (item.LeaveRequestStatus == LeaveRequestStatusEnum.Pending)
                     {
                        <button data-id="@item.Id" class="btn btn-danger cancelBtn">Cancel</button>
-                        
-                    }
+                      
+                     @* 
+                      <form asp-action="Cancel">
+                            <input type="hidden" asp-for="@item.Id" name="id" />
+                            <input class="btn btn-danger" type="submit" value="Cancel" />
+						</form> 
+                    *@
+
+					}
                 </td>
             </tr>
         }
@@ -121,15 +128,22 @@ should be inside a <form>
                         title:"Are you sure?",
 						text:"Are you sure you want to cancel this leave request?",
                         icon:"warning",
-                        buttons: true,
-						dangerMode: true,
+                        buttons: true, // Show confirm/cancel buttons
+                        dangerMode: true,// Emphasize danger (red color)
                     }).then((confirm)=>{
                         if(confirm)
                         {
-							var btn=$(this);
+                             // Get the button that was clicked
+                            var btn=$(this);
+                            
+                            // Read the data-id attribute based on the button you clicked (leave request ID)
                             var id=btn.data('id');
+                            
+                            //setting the hidden field's value of the single form as the leave request's ID (item.Id of the row you clicked).
                             $('#leaveRequestId').val(id);
-							$('#cancelForm').submit();
+                            
+                            // Submit the form to the server
+                            $('#cancelForm').submit();
 						}
                     });
                     
@@ -139,3 +153,8 @@ should be inside a <form>
         });
     </script>
 }
+
+@*
+With this approach,You have only one form in the whole page.
+When a user clicks "Cancel" for any row, JavaScript sets the leave request ID in the single hidden input and submits the same form. 
+*@

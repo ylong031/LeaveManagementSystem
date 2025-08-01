@@ -6,6 +6,8 @@ using LeaveManagementSystem.Web.Services.Email;
 using LeaveManagementSystem.Web.Services.LeaveAllocations;
 using LeaveManagementSystem.Web.Services.LeaveRequests;
 using LeaveManagementSystem.Web.Services.LeaveTypes;
+using LeaveManagementSystem.Web.Services.Periods;
+using LeaveManagementSystem.Web.Services.Users;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -38,6 +40,9 @@ builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>();
 
 builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>();
 
+builder.Services.AddScoped<IPeriodsService, PeriodsService>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 
@@ -58,6 +63,24 @@ This allows ASP.NET Core to automatically provide your EmailSender class wheneve
   (like a new waiter for every single request during the meal).*/
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+
+
+// Add authorization policies
+// only users with the Administrator or Supervisor roles can access the AdminSupervisorOnly policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminSupervisorOnly", policy =>
+    {
+        policy.RequireRole(Roles.Administrator, Roles.Supervisor);
+    }
+    );
+  
+});
+
+
+
+
 
 /*
 IHttpContextAccessor provides access to the current HttpContext (which contains information about the HTTP request, user, session, etc.)
