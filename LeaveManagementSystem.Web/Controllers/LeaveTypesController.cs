@@ -1,20 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using LeaveManagementSystem.Web.Models.LeaveTypes;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
+﻿using LeaveManagementSystem.Application.Models.LeaveTypes;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
+using Microsoft.EntityFrameworkCore;
+
 
 
 namespace LeaveManagementSystem.Web.Controllers
 {
     /*Only allowing Administrator to access LeaveTypesController*/
-    [Authorize(Roles =Roles.Administrator)]
+    [Authorize(Roles = Roles.Administrator)]
     public class LeaveTypesController(ILeaveTypesService _leaveTypesService) : Controller
     {
         /*Dependency Injection means that your classes don’t create the objects they need.
         Instead, those needed objects (called dependencies) are passed in from the outside*/
-        
-     
-        private const string NameExistsValidationMessage="This leave type already exists in the database";
-      
+
+
+        private const string NameExistsValidationMessage = "This leave type already exists in the database";
+
 
 
 
@@ -42,7 +43,7 @@ namespace LeaveManagementSystem.Web.Controllers
          Next we will convert datamodel into viewmodel
          */
         // GET: LeaveTypes
-        public async Task<IActionResult> Index() 
+        public async Task<IActionResult> Index()
         {
 
             var viewData = await _leaveTypesService.GetAll();
@@ -60,18 +61,18 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound(); //id not provided
             }
-            
-            var leaveType =await _leaveTypesService.Get<LeaveTypeReadOnlyVM>(id.Value);
+
+            var leaveType = await _leaveTypesService.Get<LeaveTypeReadOnlyVM>(id.Value);
             //Get the leave type by id
-            
-            
+
+
             if (leaveType == null)
             {
                 return NotFound(); //leavetype doesnt exist
             }
 
-            
-            
+
+
 
             return View(leaveType);
         }
@@ -101,30 +102,30 @@ namespace LeaveManagementSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
         {
-            
+
             /*
              If it finds duplication, it will add an error to the model state,
              which will be displayed in the view
             */
-            if (await _leaveTypesService.CheckIfLeaveTypeNameExists(leaveTypeCreate.Name)) 
+            if (await _leaveTypesService.CheckIfLeaveTypeNameExists(leaveTypeCreate.Name))
             {
 
                 ModelState.AddModelError(nameof(leaveTypeCreate.Name),
                     NameExistsValidationMessage);
-                
+
 
             }
 
 
             if (ModelState.IsValid) //it will also check if the field is empty or not
             {
-                await _leaveTypesService.Create(leaveTypeCreate); 
+                await _leaveTypesService.Create(leaveTypeCreate);
                 return RedirectToAction(nameof(Index));  /*return to index*/
             }
             return View(leaveTypeCreate); /*if the model state is not valid, return to the view*/
         }
 
-      
+
 
         // GET: LeaveTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -155,7 +156,7 @@ namespace LeaveManagementSystem.Web.Controllers
         public async Task<IActionResult> Edit(int id, LeaveTypeEditVM leaveTypeEdit) //id is the hidden field in the form
         {
             //check if the id is the same as the id in the leaveType object
-            if (id != leaveTypeEdit.Id)  
+            if (id != leaveTypeEdit.Id)
             {
                 return NotFound(); //make sure you are editing the correct leave type
             }
@@ -174,11 +175,11 @@ namespace LeaveManagementSystem.Web.Controllers
                 try
                 {
                     //In the service,it will convert view model into data model and update it in the database
-                    await _leaveTypesService.Edit(leaveTypeEdit); 
+                    await _leaveTypesService.Edit(leaveTypeEdit);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (! _leaveTypesService.LeaveTypeExists(leaveTypeEdit.Id))
+                    if (!_leaveTypesService.LeaveTypeExists(leaveTypeEdit.Id))
                     {
                         return NotFound();
                     }
@@ -193,7 +194,7 @@ namespace LeaveManagementSystem.Web.Controllers
             return View(leaveTypeEdit); //if the model state is not valid, return to the view and show the errors with the invalid data
         }
 
-       
+
 
 
         /*Now it's wrapped in a try catch because of the risk of what we call a database update concurrency exception.
@@ -222,20 +223,20 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound();
             }
-            
+
 
             return View(leaveType);
         }
 
         // POST: LeaveTypes/Delete/5
-        [HttpPost, ActionName("Delete")] 
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id) 
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _leaveTypesService.Remove(id);
             return RedirectToAction(nameof(Index));
         }
 
-       
+
     }
 }

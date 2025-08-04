@@ -1,31 +1,23 @@
-﻿using Humanizer;
-using LeaveManagementSystem.Web.Models.LeaveAllocations;
-using LeaveManagementSystem.Web.Services.LeaveAllocations;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.SqlServer.Server;
-using NuGet.Configuration;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Net.NetworkInformation;
-using System.Runtime.Intrinsics.X86;
-using System.Security.Policy;
-using System.Threading.Tasks;
+﻿
+using LeaveManagementSystem.Application.Models.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
+
 
 namespace LeaveManagementSystem.Web.Controllers
 {
     public class LeaveAllocationController(ILeaveAllocationsService _leaveAllocationsService,
-        ILeaveTypesService _leaveTypesService 
+        ILeaveTypesService _leaveTypesService
         ) : Controller
     {
 
         /*For Admin to get the list of employees*/
-        [Authorize(Roles=Roles.Administrator)]
+        [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> Index()
         {
             var employees = await _leaveAllocationsService.GetEmployees();
             return View(employees);
-        
+
         }
 
         /* Now, more often than not, when you are creating some method that is going to go ahead and modify data
@@ -36,8 +28,8 @@ namespace LeaveManagementSystem.Web.Controllers
  But that's not really, uh, foolproof or that's really not enough.
  Because we still are at risk of cross-site scripting and other vulnerabilities.*/
 
-     /*   And we've reviewed why it's important to use forms because forms come with that token validation.
- So if we that validate Anti-forgery token and it's a Post request so it hides sensitive data.*/
+        /*   And we've reviewed why it's important to use forms because forms come with that token validation.
+    So if we that validate Anti-forgery token and it's a Post request so it hides sensitive data.*/
 
 
         [Authorize(Roles = Roles.Administrator)]
@@ -53,7 +45,7 @@ namespace LeaveManagementSystem.Web.Controllers
             The key(userId) must match the action method's parameter name (userId).*/
 
             //redirect to the details page of the employee passing the userId
-            return RedirectToAction(nameof(Details), new {userId=Id});
+            return RedirectToAction(nameof(Details), new { userId = Id });
 
         }
 
@@ -77,12 +69,12 @@ namespace LeaveManagementSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAllocation(LeaveAllocationEditVM allocation)
         {
-            if(await _leaveTypesService.DaysExceedMaximum(allocation.LeaveType.Id, allocation.Days))
+            if (await _leaveTypesService.DaysExceedMaximum(allocation.LeaveType.Id, allocation.Days))
             {
                 ModelState.AddModelError("Days", "The allocation exceeds the maximum leave type value");
-            
+
             }
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 await _leaveAllocationsService.EditAllocation(allocation);
                 return RedirectToAction(nameof(Details), new { userId = allocation.Employee.Id });
@@ -90,9 +82,9 @@ namespace LeaveManagementSystem.Web.Controllers
             }
 
             //ModelState is invalid, so we need to return the same view with the model
-            
+
             // Preserve the number of days before the edit
-            var days =allocation.Days;
+            var days = allocation.Days;
 
             // Re-fetch the EmployeeAllocation data for views
             // (LeaveAllocationEditVM.Employee & LeaveAllocationEditVM.LeaveType)
@@ -117,7 +109,7 @@ namespace LeaveManagementSystem.Web.Controllers
         // This method retrieves the leave allocations for a specific employee
         public async Task<IActionResult> Details(string? userId)
         {
-            var employeeVm=await _leaveAllocationsService.GetEmployeeAllocations(userId);
+            var employeeVm = await _leaveAllocationsService.GetEmployeeAllocations(userId);
             return View(employeeVm);
         }
     }

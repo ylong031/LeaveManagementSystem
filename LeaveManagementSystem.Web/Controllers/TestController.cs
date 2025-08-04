@@ -1,5 +1,4 @@
-﻿using LeaveManagementSystem.Web.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagementSystem.Application.Models;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -16,7 +15,7 @@ namespace LeaveManagementSystem.Web.Controllers
             data.Name = "Student";
             data.DateOfBirth = new DateTime(1954, 12, 01);
 
-            return View(data); 
+            return View(data);
         }
     }
 }

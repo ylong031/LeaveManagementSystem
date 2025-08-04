@@ -2,32 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using Humanizer;
-using Azure;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using NuGet.Packaging.Signing;
-using System.Security.Policy;
-using System.Diagnostics.Metrics;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Drawing;
-using NuGet.Protocol.Plugins;
-using System.Net.Sockets;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
-
 namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
@@ -47,7 +21,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         /// </summary>
         //bind model to the form
         //Input is the model for the form
-        [BindProperty] 
+        [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
@@ -117,7 +91,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            
+
             /*Loads external login providers(e.g., Google, Facebook)
             that will be shown as login options.*/
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -138,8 +112,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             /*Checks if the email / password input is valid(e.g., not empty, correct format).*/
             if (ModelState.IsValid)
             {
-               /* lockoutOnFailure: false means incorrect attempts won't lock the account 
-                (can be changed to true if you want security lockout behavior).*/
+                /* lockoutOnFailure: false means incorrect attempts won't lock the account 
+                 (can be changed to true if you want security lockout behavior).*/
 
                 //_signInManager.PasswordSignInAsync to check the user’s credentials.
                 //Input.Email
@@ -166,13 +140,13 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                 //username & password incorrect
+                    //username & password incorrect
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
             }
 
-           /* If validation failed, show the form again(with validation errors)*/
+            /* If validation failed, show the form again(with validation errors)*/
             return Page();
         }
     }

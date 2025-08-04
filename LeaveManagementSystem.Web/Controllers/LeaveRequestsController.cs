@@ -1,12 +1,7 @@
-﻿using Humanizer;
-using LeaveManagementSystem.Web.Models.LeaveRequests;
-using LeaveManagementSystem.Web.Services.LeaveRequests;
-using LeaveManagementSystem.Web.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagementSystem.Application.Models.LeaveRequests;
+using LeaveManagementSystem.Application.Services.LeaveRequests;
+using LeaveManagementSystem.Application.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace LeaveManagementSystem.Web.Controllers
 {
@@ -91,7 +86,7 @@ namespace LeaveManagementSystem.Web.Controllers
 
 
         //Admin/Supervisor review Requests
-        [Authorize(Policy="AdminSupervisorOnly")]
+        [Authorize(Policy = "AdminSupervisorOnly")]
         public async Task<IActionResult> ListRequests()
         {
             var model = await _leaveRequestsService.AdminGetAllLeaveRequests();
@@ -107,9 +102,9 @@ namespace LeaveManagementSystem.Web.Controllers
         //Admin/Supervisor review Requests
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Review(int id,bool approved )
+        public async Task<IActionResult> Review(int id, bool approved)
         {
-            await _leaveRequestsService.ReviewLeaveRequest(id,approved);
+            await _leaveRequestsService.ReviewLeaveRequest(id, approved);
             return RedirectToAction(nameof(ListRequests));
         }
     }

@@ -3,9 +3,9 @@
 #nullable disable
 
 
-using System.Data;
-using LeaveManagementSystem.Web.Services.LeaveAllocations;
+using LeaveManagementSystem.Application.Services.LeaveAllocations;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 
 namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
@@ -48,8 +48,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
        you will get null reference when you call Input.Email,Input.Password etc in OnGetAsync 
        if Input is not initialized.You are basically calling null.Email,null.Password
        */
-       [BindProperty]
-        public InputModel Input { get; set; }=new InputModel();
+        [BindProperty]
+        public InputModel Input { get; set; } = new InputModel();
 
 
         public string[] RoleNames { get; set; }
@@ -116,17 +116,17 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
 
             [Required]
             public string RoleName { get; set; }
-            
+
         }
 
-/* 
-var roles =: Declares a new variable named roles.
-await roleManager.Roles: Asynchronously accesses the list of roles from the database.
-.Select(q => q.Name): From each role object, take only the role's name (e.g., "Employee", "Supervisor").
-q => q.Name is a lambda expression: for each q in the collection, select q.Name.
-.Where(q => q != "Administrator"): Filters out the role named "Administrator". Only roles with a name not equal to "Administrator" are kept.
-.ToArrayAsync(): Converts the filtered list of names into an array, asynchronously.
-*/
+        /* 
+        var roles =: Declares a new variable named roles.
+        await roleManager.Roles: Asynchronously accesses the list of roles from the database.
+        .Select(q => q.Name): From each role object, take only the role's name (e.g., "Employee", "Supervisor").
+        q => q.Name is a lambda expression: for each q in the collection, select q.Name.
+        .Where(q => q != "Administrator"): Filters out the role named "Administrator". Only roles with a name not equal to "Administrator" are kept.
+        .ToArrayAsync(): Converts the filtered list of names into an array, asynchronously.
+        */
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
@@ -137,7 +137,7 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                 .ToArrayAsync();
 
             RoleNames = roles;
-        
+
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -153,9 +153,9 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                 //setting email
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-    /*         This ensures that the user object is fully populated with all the necessary data 
-               — including fields like FirstName that the database expects to be non - null.*/
-                
+                /*         This ensures that the user object is fully populated with all the necessary data 
+                           — including fields like FirstName that the database expects to be non - null.*/
+
                 user.DateOfBirth = Input.DateOfBirth;
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
@@ -165,11 +165,11 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    if (Input.RoleName == Roles.Supervisor) 
+                    if (Input.RoleName == Roles.Supervisor)
                     {
-                        await _userManager.AddToRolesAsync(user,[Roles.Supervisor, Roles.Employee]);
+                        await _userManager.AddToRolesAsync(user, [Roles.Supervisor, Roles.Employee]);
                     }
-                    else 
+                    else
                     {
                         await _userManager.AddToRoleAsync(user, Roles.Employee);
 
@@ -196,8 +196,8 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                   /* If confirmation is required:  
-                    Redirect to confirmation page*/
+                    /* If confirmation is required:  
+                     Redirect to confirmation page*/
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
@@ -216,13 +216,13 @@ q => q.Name is a lambda expression: for each q in the collection, select q.Name.
                 }
             }
 
-// IMPORTANT:
-// When registration fails (e.g., invalid email or weak password),
-// we redisplay the form using return Page().
-// However, non-form-bound properties like RoleNames (used for dropdowns or radio buttons)
-// are not preserved across postbacks because they are not part of the form model.(not bound with asp-for)
-// To prevent a NullReferenceException in the Razor page,
-// we must reload the roles before returning the page
+            // IMPORTANT:
+            // When registration fails (e.g., invalid email or weak password),
+            // we redisplay the form using return Page().
+            // However, non-form-bound properties like RoleNames (used for dropdowns or radio buttons)
+            // are not preserved across postbacks because they are not part of the form model.(not bound with asp-for)
+            // To prevent a NullReferenceException in the Razor page,
+            // we must reload the roles before returning the page
 
             var roles = await _roleManager.Roles
                 .Select(q => q.Name)
