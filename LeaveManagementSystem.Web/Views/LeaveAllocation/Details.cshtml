@@ -100,10 +100,11 @@ the form field name must match the action's parameter name for automatic model b
 						<div class="col">
 							<span class="badge rounded-pill bg-warning  text-dark">@allocation.Days</span>
 						</div>
-						<div class="col">
+						<div class="col d-flex gap-2">
 							@if (isAdmin)
 							{
 								<a class="btn btn-primary" asp-action="EditAllocation" asp-route-id="@allocation.Id">Edit Allocation</a>
+								
 							}
 
 							<a asp-controller="LeaveRequests" asp-action="Create" asp-route-leaveTypeId="@allocation.LeaveType.Id" class="btn btn-success">Request Leave</a>

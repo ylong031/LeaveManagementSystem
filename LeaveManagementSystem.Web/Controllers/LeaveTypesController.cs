@@ -8,7 +8,8 @@ namespace LeaveManagementSystem.Web.Controllers
 {
     /*Only allowing Administrator to access LeaveTypesController*/
     [Authorize(Roles = Roles.Administrator)]
-    public class LeaveTypesController(ILeaveTypesService _leaveTypesService) : Controller
+    public class LeaveTypesController(ILeaveTypesService _leaveTypesService,
+        ILogger<LeaveTypesController> _logger) : Controller
     {
         /*Dependency Injection means that your classes don’t create the objects they need.
         Instead, those needed objects (called dependencies) are passed in from the outside*/
@@ -45,7 +46,7 @@ namespace LeaveManagementSystem.Web.Controllers
         // GET: LeaveTypes
         public async Task<IActionResult> Index()
         {
-
+            _logger.LogInformation("Loading Leave Types");   
             var viewData = await _leaveTypesService.GetAll();
             return View(viewData);
         }
@@ -119,9 +120,11 @@ namespace LeaveManagementSystem.Web.Controllers
 
             if (ModelState.IsValid) //it will also check if the field is empty or not
             {
+               
                 await _leaveTypesService.Create(leaveTypeCreate);
                 return RedirectToAction(nameof(Index));  /*return to index*/
             }
+            _logger.LogWarning("Leave Type attempt failed due to invalidity");
             return View(leaveTypeCreate); /*if the model state is not valid, return to the view*/
         }
 

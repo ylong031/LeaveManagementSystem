@@ -20,6 +20,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
         public RegisterModel(
             ILeaveAllocationsService leaveAllocationsService,
@@ -28,7 +29,8 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IWebHostEnvironment hostEnvironment)
         {
             this._leaveAllocationsService = leaveAllocationsService;
             _userManager = userManager;
@@ -38,6 +40,7 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
             _roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
+            _hostEnvironment = hostEnvironment;
         }
 
         /// <summary>
@@ -153,8 +156,10 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                 //setting email
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-                /*         This ensures that the user object is fully populated with all the necessary data 
-                           — including fields like FirstName that the database expects to be non - null.*/
+    
+                /*         
+                This ensures that the user object is fully populated with all the necessary data 
+                — including fields like FirstName that the database expects to be non - null.*/
 
                 user.DateOfBirth = Input.DateOfBirth;
                 user.FirstName = Input.FirstName;
@@ -192,9 +197,23 @@ namespace LeaveManagementSystem.Web.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    // we would send an email.
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //grab the email template from the wwwroot folder
+                    //go to wwwroot/templates/email_layout
+                    var emailTemplatePath = Path.Combine(_hostEnvironment.WebRootPath, "templates", "email_layout.html");
+                    
+                    var template = await System.IO.File.ReadAllTextAsync(emailTemplatePath);
+
+                    //replace the placeholders in the template with actual values
+                    var messageBody = template
+                        .Replace("{UserName}", $"{Input.FirstName}{Input.LastName}")
+                        .Replace("{MessageContent}",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+
+                    //"confirm your email" is the subject of the email
+                    //adding the message body to the email
+                    //and sending the email
+                    await _emailSender.SendEmailAsync(Input.Email,"Confirm your email",messageBody);
 
                     /* If confirmation is required:  
                      Redirect to confirmation page*/

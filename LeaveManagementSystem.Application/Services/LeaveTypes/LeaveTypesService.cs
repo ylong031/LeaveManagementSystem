@@ -11,11 +11,14 @@ This makes your code cleaner, easier to maintain, and less cluttered.
 using AutoMapper;
 using LeaveManagementSystem.Application.Models.LeaveTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 namespace LeaveManagementSystem.Application.Services.LeaveTypes;
 
 /*A primary constructor is a feature that allows you
 to declare constructor parameters directly in the class*/
-public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) : ILeaveTypesService
+public class LeaveTypesService(ApplicationDbContext _context,
+    IMapper _mapper,
+     ILogger<LeaveTypesService> _logger) : ILeaveTypesService
 {
 
 
@@ -84,6 +87,7 @@ public class LeaveTypesService(ApplicationDbContext _context, IMapper _mapper) :
 
     public async Task Create(LeaveTypeCreateVM model)
     {
+        _logger.LogInformation("Creating a new leave type with name: {Name} - {days}", model.Name,model.NumberOfDays);
         var leaveType = _mapper.Map<LeaveType>(model); //Convert view model into data model
         _context.Add(leaveType); /*Add leave application to database*/
         await _context.SaveChangesAsync(); /*Save changes to the database*/

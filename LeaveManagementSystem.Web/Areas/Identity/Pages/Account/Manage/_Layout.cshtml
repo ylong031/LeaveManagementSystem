@@ -1,10 +1,15 @@
-﻿@{
+﻿ @* So here's another layout which actually tries to get the parent layout.
+ And then it says if you can't get the parent layout then look in the regular layout as the layout. *@
+
+
+@{
     if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
     {
         Layout = parentLayout.ToString();
     }
     else
     {
+
         Layout = "/Areas/Identity/Pages/_Layout.cshtml";
     }
 }
